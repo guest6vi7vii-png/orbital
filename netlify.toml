@@ -1,0 +1,33 @@
+# netlify.toml — Konfigurasi buat deploy proxy serverless di Netlify
+
+[build]
+  command = "npm install"
+  functions = "netlify/functions"
+  publish = "public"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirect semua request /api/* ke function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/proxy/:splat"
+  status = 200
+
+# Redirect root ke health check
+[[redirects]]
+  from = "/"
+  to = "/api/health"
+  status = 200
+
+# Biar CORS jalan mulus
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+
+# Mode production biar ga ribet
+[functions]
+  node_bundler = "esbuild"
